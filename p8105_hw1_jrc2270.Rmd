@@ -9,25 +9,29 @@ output: html_document
 library(moderndive)
 library(hms)
 library(ggplot2)
+library(scales)
 ```
 
 
 ## Summary of Early January Weather Dataset
-The `early_january_weather` (`r nrow(early_january_weather)` rows &#215; `r ncol(early_january_weather)` columns) dataset contains hourly meterological data for LGA, JFK and EWR for the month of January 2013. It has a structure of one row per timepoint per weather station (`origin`). We will be focused on the temperature (`temp`) in farenheit and relative humidity (`humid`) against time. The time of each measurement is recorded in the numeric variables `year`, `month`, `day`, and `hour`. The overall mean temperature in the dataset is `r mean(early_january_weather$temp) |> round(1)`&#8457; and the mean humidity is `r mean(early_january_weather$humid) |> round(1)`%.
+The `early_january_weather` (`r nrow(early_january_weather)` rows &#215; `r ncol(early_january_weather)` columns) dataset contains hourly meterological data for LGA, JFK and EWR for the month of January 2013. It has a structure of one row per timepoint per weather station (`origin`). We will be focused on the temperature (`temp`) in fahrenheit and relative humidity (`humid`) against time. The time of each measurement is recorded in the numeric variables `year`, `month`, `day`, and `hour`. The overall mean temperature in the dataset is `r mean(early_january_weather$temp) |> round(1)`&#8457; and the mean humidity is `r mean(early_january_weather$humid) |> round(1)`%.
 
-Below is a plot of temperature against hour of the day (midnight to midnight). As we might expect, the temperature tends to reach a minimum in the early morning, increase during the day, and begin to drop off in the evening. The temperatures have a fairly narrow spread consistent with what we might expect in January, except for a couple of outlying days, which we can clearly follow - one very warm and two very cold. It would also appear that higher temperatures might be associated with higher humidities.
+Below is a plot of temperature against time of the day (midnight to midnight). As we might expect, the temperature tends to reach a minimum in the early morning, increase during the day, and begin to drop off in the evening. The temperatures have a fairly narrow spread consistent with what we might expect in January, with a few particularly warm or cold days that we can clearly follow. It would also appear that higher temperatures might be associated with higher humidities.
 
 ```{r}
 ggplot(data = early_january_weather, 
        mapping = aes(x = hms(hours = hour), y = temp, color = humid)) +
   geom_point() +
   theme_bw() +
+  theme(aspect.ratio = 1) +
   coord_cartesian(
     ylim = c(0, max(early_january_weather$temp) + 5), 
     xlim = c(hms(minutes = -15), hms(hours = 23, minutes = 15)), 
     expand = FALSE) +
   labs(x = "Time of Day", 
-       y = "Temperature", 
-       color = "Humidity")
+       y = "Temperature (\u00B0F)", 
+       color = "Humidity") +
+  scale_x_time(labels = label_time(format = "%H:%M")) +
+  scale_color_continuous(labels = ~paste(.x, "%", sep = ""))
 ```
 
